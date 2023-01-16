@@ -1,6 +1,6 @@
 module.exports = {
 	"version": "0.1.1",
-	"server": "naominet.starscollege.top",
+	"server": "127.0.0.1",
 	"server_port":37703,
 	"login": {
 		pref_ip: 11
