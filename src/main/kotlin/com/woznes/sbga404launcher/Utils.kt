@@ -1,9 +1,12 @@
 package com.woznes.sbga404launcher
 
+import com.sun.jna.Native
+import org.apache.commons.io.FileUtils
 import org.apache.commons.logging.LogFactory
-import org.testng.annotations.Test
-import java.io.*
-import java.lang.StringBuilder
+import java.io.File
+import java.io.InputStream
+import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.system.exitProcess
 
 
@@ -30,8 +33,11 @@ object Utils {
             if (it == null) {
                 fuckYou()
             }
-            return String(it.openConnection().getInputStream().readAllBytes());
+            if (it != null) {
+                return String(it.openConnection().getInputStream().readAllBytes())
+            }
         }
+        return ""
     }
 
      fun selectPort(): Int {
@@ -88,7 +94,7 @@ object Utils {
     }
 
 
-    fun checkWindows():Unit{
+    fun checkWindows(){
         System.getProperty("os.name").indexOf("Windows").also {
             if (it==-1){
                 return fuckYou("this is not windows")
@@ -107,8 +113,37 @@ object Utils {
         }
     }
 
-
     fun gbk2utf(inputStream: InputStream): String {
         return String(inputStream.readBytes(), charset("GBK"))
+    }
+    fun loadLibrary(name: String): Jna {
+        log.info("start to load native library")
+        val na: String
+        var lib = ""
+        if (System.getProperty("os.name").uppercase(Locale.getDefault()).indexOf("WIN") != -1) {
+            na = ".dll"
+        } else if (System.getProperty("os.name").uppercase(Locale.getDefault()).indexOf("MAC") != -1) {
+            na = ".dylib"
+            lib = "lib"
+        } else {
+            na = ".so"
+            lib = "lib"
+        }
+        val f = File("${System.getProperty("user.dir")}/$lib$name$na").also {
+            it.delete()
+            it.createNewFile()
+            Runtime.getRuntime().addShutdownHook(Thread {
+                it.delete()
+            })
+        }
+        try {
+            FileUtils.copyURLToFile(this.javaClass.classLoader.getResource("$lib$name$na"), f)
+        } catch (e: NullPointerException) {
+            log.fatal("copy failed")
+            log.fatal("no such resources: $lib$name$na")
+            exitProcess(-1)
+        }
+        return Native.loadLibrary(f.absolutePath, Jna::class.java)
+            .also { log.info("loaded") } as Jna
     }
 }
