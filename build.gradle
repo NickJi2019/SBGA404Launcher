@@ -22,14 +22,15 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
-    implementation 'org.testng:testng:7.1.0'
+    implementation 'org.testng:testng:7.7.0'
     implementation 'junit:junit:4.13.2'
     implementation 'com.alibaba.fastjson2:fastjson2:2.0.22'
     implementation 'commons-io:commons-io:2.11.0'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation 'com.sun.jna:jna:3.0.9'
 }
 
-tasks.withType(KotlinCompile) {
+tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         freeCompilerArgs = ['-Xjsr305=strict']
         jvmTarget = '17'
